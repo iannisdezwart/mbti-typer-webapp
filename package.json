@@ -1,0 +1,14 @@
+{
+	"name": "mbti-typer-webapp",
+	"version": "0.0.1",
+	"description": "WebApp that lets users find their MBTI personality type",
+	"scripts": {
+		"compile": "node compiler.js"
+	},
+	"keywords": [ "MBTI", "16 personalities", "personality types", "WebApp", "survey", "questionnaire" ],
+	"author": "Iannis de Zwart",
+	"license": "ISC",
+  "dependencies": {
+    "page-compiler": "^0.0.6"
+  }
+}
