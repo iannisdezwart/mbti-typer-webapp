@@ -18,6 +18,23 @@ const main = async () => {
 		`
 	})
 
+	await pageCompiler.createPWAManifest({
+		icon: {
+			svg: 'src/pwa/logo.svg',
+			png: 'src/pwa/logo.png'
+		},
+		name: 'MBTI Typer',
+		shortName: 'MBTI Typer',
+		backgroundColour: '#4b5378',
+		themeColour: '#515980',
+		categories: [ 'MBTI', '16 personalities', 'personality types' ],
+		description: 'Find your MBTI personality type',
+		display: 'standalone',
+		lang: 'en-UK',
+		orientation: 'portrait-primary',
+		startURL: '/'
+	}, pageShell)
+
 	pageCompiler.compilePages([
 		{
 			html: pageShell.render('MBTI Typer', /* html */ `

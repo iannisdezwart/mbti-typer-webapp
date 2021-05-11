@@ -407,6 +407,7 @@ body {
 #results .progress-bar {
 	margin: 0 1rem;
 }
+
 #results .score {
 	font-size: 1.5rem;
 	color: var(--default-paragraph-colour);
