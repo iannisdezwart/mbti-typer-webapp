@@ -1,6 +1,3 @@
-type Factor = 'Fe' | 'Fi' | 'Te' | 'Ti' | 'Se' | 'Si' | 'Ne' | 'Ni'
-const factors: Factor[] = [ 'Fe', 'Fi', 'Te', 'Ti', 'Se', 'Si', 'Ne', 'Ni' ]
-
 // 10 questions per factor
 
 type QuestionList = [

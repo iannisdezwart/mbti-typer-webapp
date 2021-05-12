@@ -1,11 +1,40 @@
 (() => {
+	type CognitiveFunction = 'Fe' | 'Fi' | 'Te' | 'Ti' | 'Se' | 'Si' | 'Ne' | 'Ni'
+	const cognitiveFunctions: CognitiveFunction[] = [
+		'Fe', 'Fi', 'Te', 'Ti', 'Se', 'Si', 'Ne', 'Ni'
+	]
+
+	type MBTIType = [ CognitiveFunction, CognitiveFunction,
+		CognitiveFunction, CognitiveFunction ]
+
+	const MBTITypes: {
+		[ name: string ]: MBTIType
+	} = {
+		ENFJ: [ 'Fe', 'Ni', 'Se', 'Ti' ],
+		ESFJ: [ 'Fe', 'Si', 'Ne', 'Ti' ],
+		ENFP: [ 'Ne', 'Fi', 'Te', 'Si' ],
+		ENTP: [ 'Ne', 'Ti', 'Fe', 'Si' ],
+		ENTJ: [ 'Te', 'Ni', 'Se', 'Fi' ],
+		ESTJ: [ 'Te', 'Si', 'Ne', 'Fi' ],
+		ESFP: [ 'Se', 'Fi', 'Te', 'Ni' ],
+		ESTP: [ 'Se', 'Ti', 'Fe', 'Ni' ],
+		INFJ: [ 'Ni', 'Fe', 'Ti', 'Se' ],
+		ISFJ: [ 'Si', 'Fe', 'Ti', 'Ne' ],
+		INFP: [ 'Fi', 'Ne', 'Si', 'Te' ],
+		INTP: [ 'Ti', 'Ne', 'Si', 'Fe' ],
+		INTJ: [ 'Ni', 'Te', 'Fi', 'Se' ],
+		ISTJ: [ 'Si', 'Te', 'Fi', 'Ne' ],
+		ISFP: [ 'Fi', 'Se', 'Ni', 'Te' ],
+		ISTP: [ 'Ti', 'Se', 'Ni', 'Fe' ]
+	}
+
 	interface Question {
 		statement: string
-		factor: Factor
+		cognitiveFunction: CognitiveFunction
 		index: number
 	}
 
-	class Result {
+	class CognitiveFunctionsResult {
 		Fe = 0
 		Fi = 0
 		Te = 0
@@ -17,7 +46,7 @@
 	}
 
 	const createQuestion = (question: Question) => /* html */ `
-	<div class="question" data-factor="${ question.factor }" data-index="${ question.index }">
+	<div class="question" data-cognitive-function="${ question.cognitiveFunction }" data-index="${ question.index }">
 		<h3 class="statement">${ question.statement }</h3>
 		<div class="answers">
 			<div class="answer just-like-me" title="Just like me"></div>
@@ -59,18 +88,49 @@
 
 	const computeResult = () => {
 		const answerLists = document.querySelectorAll<HTMLDivElement>('.answers')
-		const result = new Result()
+		const result = new CognitiveFunctionsResult()
 
 		for (let i = 0; i < answerLists.length; i++) {
 			const answerList = answerLists[i]
 			const selected = answerList.querySelector<HTMLDivElement>('.selected')
-			const factor = answerList.parentElement.getAttribute('data-factor')
+			const cognitiveFunction = answerList.parentElement.getAttribute('data-cognitive-function')
 			const score = scoreByAnswer(selected)
 
-			result[factor] += score
+			result[cognitiveFunction] += score
 		}
 
 		return result
+	}
+
+	const matchTypes = (result: CognitiveFunctionsResult) => {
+		const matchingResults = Object.keys(MBTITypes).map(type => {
+			const cognitiveFunctionList = MBTITypes[type]
+			const maxScore = +numOfQuestionsSlider.value / 8 * 3
+
+			const dominantResult = result[cognitiveFunctionList[0]] / maxScore
+			const auxiliaryResult = result[cognitiveFunctionList[1]] / maxScore
+			const tertiaryResult = result[cognitiveFunctionList[2]] / maxScore
+			const inferiorResult = result[cognitiveFunctionList[3]] / maxScore
+
+			const dominantExpected = 1
+			const auxiliaryExpected = 5 / 7
+			const tertiaryExpected = 3 / 7
+			const inferiorExpected = 1 / 7
+
+			const dominantDiff = (dominantExpected - dominantResult) ** 2
+			const auxiliaryDiff = (auxiliaryExpected - auxiliaryResult) ** 2
+			const tertiaryDiff = (tertiaryExpected - tertiaryResult) ** 2
+			const inferiorDiff = (inferiorExpected - inferiorResult) ** 2
+
+			const diff = dominantDiff * 0.55
+				+ auxiliaryDiff * 0.40
+				+ tertiaryDiff * 0.10
+				+ inferiorDiff * 0.05
+
+			return { type, diff }
+		}).sort((a, b) => a.diff - b.diff)
+
+		return matchingResults
 	}
 
 	const registerOnClickEvents = () => {
@@ -95,15 +155,20 @@
 				return
 			}
 
-			const maxScore = +numOfQuestionsSlider.value
+			const maxScore = +numOfQuestionsSlider.value / 8 * 3
 
 			const computeScorePercentage = (score: number) => {
 				return score / maxScore * 50 + 50
 			}
 
 			const resultObj = computeResult()
+			const typesResult = matchTypes(resultObj)
+
 			const resultsPlaceholderEl = document.querySelector<HTMLDivElement>('#results-placeholder')
-			const resultArr = factors.map(factor => ({ factor, score: resultObj[factor] }))
+			const resultArr = cognitiveFunctions.map(cognitiveFunction => ({
+				cognitiveFunction,
+				score: resultObj[cognitiveFunction]
+			}))
 
 			resultArr.sort((a, b) => b.score - a.score)
 
@@ -114,7 +179,7 @@
 				${
 					resultArr.map(result => /* html */ `
 					<div class="result-line">
-						<div class="cognitive-function">${ result.factor }</div>
+						<div class="cognitive-function">${ result.cognitiveFunction }</div>
 						<div class="progress-bar">
 							<div class="progress" style="width: ${ computeScorePercentage(result.score) }%"></div>
 						</div>
@@ -122,8 +187,28 @@
 					</div>
 					`).join('')
 				}
+				<p>This is your MBTI type:</p>
+				<div class="types-list">
+					${
+						typesResult.map(typeResult => /* html */ `
+						<div class="result-line">
+							<div class="mbti-type">${ typeResult.type }</div>
+							<span class="difference">Difference: ${ typeResult.diff.toFixed(3) }</span>
+						</div>
+						`).join('')
+					}
+					<a class="expand button">See all</a>
+				</div>
 			</div>
 			`
+
+			const typesList = resultsPlaceholderEl.querySelector('.types-list')
+			const expandButton = typesList.querySelector('.expand.button')
+
+			expandButton.addEventListener('click', () => {
+				typesList.classList.add('opened')
+				expandButton.remove()
+			})
 
 			location.hash = ''
 			location.hash = 'results'
@@ -146,12 +231,13 @@
 
 		const displayedQuestions: Question[] = []
 
-		for (const factor of factors) {
-			const questionList = questions[factor] as QuestionList
+		for (const cognitiveFunction of cognitiveFunctions) {
+			const questionList = questions[cognitiveFunction] as QuestionList
+			questionList.sort(() => 2 * Math.round(Math.random()) - 1)
 
 			for (let i = 0; i < numOfQuestions / 8 && i < questionList.length; i++) {
 				const statement = questionList[i]
-				displayedQuestions.push({ statement, factor, index: i })
+				displayedQuestions.push({ statement, cognitiveFunction: cognitiveFunction, index: i })
 			}
 		}
 
