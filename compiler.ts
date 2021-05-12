@@ -15,6 +15,7 @@ const main = async () => {
 		}
 		${ pageCompiler.inlineCSS('src/css/index.css') }
 		${ pageCompiler.inlineJS('src/js/index.js') }
+		${ pageCompiler.importServiceWorker('src/js/service-worker.js') }
 		`
 	})
 
