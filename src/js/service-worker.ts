@@ -51,18 +51,13 @@ self.addEventListener('activate', (e: ExtendableEvent) => {
 })
 
 self.addEventListener('fetch', (e: FetchEvent) => {
-	console.log('intercepting fetch request')
+	const addResponseToCache = async (clonedResponse: Response) => {
+		const cache = await caches.open(dynamicCache)
+		cache.put(e.request.url, clonedResponse)
+	}
 
 	e.respondWith((async () => {
 		try {
-			// Respond with preloaded response if it exists
-
-			const preloadResponse = await e.preloadResponse
-
-			if (preloadResponse != null) {
-				return preloadResponse
-			}
-
 			// See if we have the resource in our caches
 
 			const cacheResponse = await caches.match(e.request)
@@ -71,13 +66,19 @@ self.addEventListener('fetch', (e: FetchEvent) => {
 				return cacheResponse
 			}
 
+			// Respond with preloaded response if it exists and add it to the cache
+
+			const preloadResponse = await e.preloadResponse
+
+			if (preloadResponse != null) {
+				addResponseToCache(preloadResponse.clone())
+				return preloadResponse
+			}
+
 			// Fetch the resource and add it to the cache
 
 			const networkResponse = await fetch(e.request)
-			const cache = await caches.open(dynamicCache)
-
-			cache.put(e.request.url, networkResponse.clone())
-
+			addResponseToCache(networkResponse.clone())
 			return networkResponse
 		} catch (err) {
 			// We're offline and the page is not in our caches, send the fallback page
@@ -87,30 +88,7 @@ self.addEventListener('fetch', (e: FetchEvent) => {
 				return fallbackResponse
 			}
 
-			return new Response('', { status: 0, statusText: 'Offline' })
-		}
-
-		const cachedResponse = await caches.match(e.request)
-
-		if (cachedResponse != null) {
-			console.log('found cached response for ', e.request.url)
-			return cachedResponse
-		}
-
-		try {
-			const response = await fetch(e.request)
-			const cache = await caches.open(dynamicCache)
-
-			cache.put(e.request.url, response.clone())
-
-			console.log('added ', e.request.url, ' to the dynamic cache')
-			return response
-		} catch(err) {
-			console.log('offline')
-			if (e.request.mode == 'navigate') {
-				console.log('serving fallback page')
-				return await caches.match('/offline.html')
-			}
+			return new Response('', { status: 408, statusText: 'Offline' })
 		}
 	})())
 })

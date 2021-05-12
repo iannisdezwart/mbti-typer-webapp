@@ -109,7 +109,7 @@ interface Body {
 	text(): Promise<string>;
 }
 
-interface FetchEvent extends Event {
+interface FetchEvent extends ExtendableEvent {
 	request: Request;
 	preloadResponse: Promise<Response>;
 	respondWith(response: Promise<Response>|Response): Promise<Response>;

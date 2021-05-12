@@ -38,6 +38,12 @@ const main = async () => {
 		startURL: '/'
 	}, pageShell)
 
+	const seo = {
+		author: 'Iannis de Zwart',
+		description: 'Find your MBTI personality type',
+		keywords: [ 'MBTI', 'personality type', '16 personalities' ]
+	}
+
 	pageCompiler.compilePages([
 		{
 			html: pageShell.render('MBTI Typer', /* html */ `
@@ -60,11 +66,7 @@ const main = async () => {
 					</div>
 				</div>
 			</div>
-			`, {
-				author: 'Iannis de Zwart',
-				description: 'Find your MBTI personality type',
-				keywords: [ 'MBTI', 'personality type', '16 personalities' ]
-			}),
+			`, seo),
 			path: '/index.html'
 		},
 		{
@@ -92,12 +94,18 @@ const main = async () => {
 				${ pageCompiler.inlineJS('src/js/questions.js') }
 				${ pageCompiler.inlineJS('src/js/fill-questionnaire.js') }
 			</div>
-			`, {
-				author: 'Iannis de Zwart',
-				description: 'Find your MBTI personality type',
-				keywords: [ 'MBTI', 'personality type', '16 personalities' ]
-			}),
+			`, seo),
 			path: '/test.html'
+		},
+		{
+			html: pageShell.render('Offline | MBTI Typer', /* html */ `
+			<div id="page">
+				<div id="landing">
+					<h1><a href="/">MBTI Typer</a> > Offline</h1>
+					<p>You are currently offline and can't see this page.</p>
+				</div>
+			`, seo),
+			path: '/offline.html'
 		}
 	])
 }
