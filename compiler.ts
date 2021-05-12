@@ -22,7 +22,9 @@ const main = async () => {
 	await pageCompiler.createPWAManifest({
 		icon: {
 			svg: 'src/pwa/logo.svg',
-			png: 'src/pwa/logo.png'
+			png: 'src/pwa/logo.png',
+			maskableSvg: 'src/pwa/masked-logo.svg',
+			maskablePng: 'src/pwa/masked-logo.png'
 		},
 		name: 'MBTI Typer',
 		shortName: 'MBTI Typer',
