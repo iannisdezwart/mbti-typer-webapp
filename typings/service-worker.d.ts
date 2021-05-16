@@ -74,6 +74,7 @@ interface Client {
 	frameType: ClientFrameType;
 	id: string;
 	url: string;
+	postMessage(data: any): void
 }
 
 interface Clients {

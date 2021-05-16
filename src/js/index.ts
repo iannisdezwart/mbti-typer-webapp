@@ -1,3 +1,27 @@
+// Service worker messaging
+
+interface WorkerMessage {
+	command: string
+	args?: any
+}
+
+const messageWorker = (data: WorkerMessage) => {
+	const messageChannel = new MessageChannel()
+
+	messageChannel.port1.onmessage = e => {
+		new Popup({
+			title: 'Service Worker',
+			description: e.data
+		})
+	}
+
+	navigator.serviceWorker.controller.postMessage(data, [ messageChannel.port2 ])
+}
+
+const clearCache = () => {
+	messageWorker({ command: 'clear-cache' })
+}
+
 // Popups
 
 interface PopupOptions {

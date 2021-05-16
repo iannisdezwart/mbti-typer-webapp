@@ -10,6 +10,28 @@ const assets = [
 	'https://fonts.gstatic.com/s/ubuntu/v15/4iCs6KVjbNBYlgo6eA.ttf',
 ]
 
+const clearCaches = async () => {
+	const cacheNames = await caches.keys()
+	const deleteCachePromises: Promise<boolean>[] = []
+
+	for (const cacheName of cacheNames) {
+		deleteCachePromises.push(caches.delete(cacheName))
+	}
+
+	return Promise.all(deleteCachePromises)
+}
+
+self.addEventListener('message', async e => {
+	const command = e?.data?.command
+
+	if (command == null) return
+
+	if (command == 'clear-cache') {
+		await clearCaches()
+		e.ports[0].postMessage('Cleared cache!')
+	}
+})
+
 self.addEventListener('install', (e: ExtendableEvent) => {
 	const preCache = async () => {
 		const cache = await caches.open(staticCache)

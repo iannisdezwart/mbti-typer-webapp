@@ -65,6 +65,8 @@ const main = async () => {
 						<a class="button" href="#">Learn</a>
 					</div>
 				</div>
+
+				<a href="/dev-tools.html" class="button" style="margin-top: 2rem">Dev tools</a>
 			</div>
 			`, seo),
 			path: '/index.html'
@@ -96,6 +98,15 @@ const main = async () => {
 			</div>
 			`, seo),
 			path: '/test.html'
+		},
+		{
+			html: pageShell.render('Development tools | MBTI Typer', /* html */ `
+			<div id="page">
+				<h1><a href="/">MBTI Typer</a> > Development Tools</h1>
+				<a class="button" onclick="clearCache()">Clear Cache</a>
+			</div>
+			`, seo),
+			path: '/dev-tools.html'
 		},
 		{
 			html: pageShell.render('Offline | MBTI Typer', /* html */ `
