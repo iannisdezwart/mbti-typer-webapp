@@ -86,9 +86,8 @@
 		if (answer.classList.contains('not-me-at-all')) return -3
 	}
 
-	const computeResult = () => {
+	const addCurrentSetToResults = (results: CognitiveFunctionsResult) => {
 		const answerLists = document.querySelectorAll<HTMLDivElement>('.answers')
-		const result = new CognitiveFunctionsResult()
 
 		for (let i = 0; i < answerLists.length; i++) {
 			const answerList = answerLists[i]
@@ -96,10 +95,8 @@
 			const cognitiveFunction = answerList.parentElement.getAttribute('data-cognitive-function')
 			const score = scoreByAnswer(selected)
 
-			result[cognitiveFunction] += score
+			results[cognitiveFunction] += score
 		}
-
-		return result
 	}
 
 	const matchTypes = (result: CognitiveFunctionsResult) => {
@@ -133,7 +130,10 @@
 		return matchingResults
 	}
 
-	const registerOnClickEvents = () => {
+	const registerOnClickEvents = (
+		results: CognitiveFunctionsResult,
+		nextCallback: () => void
+	) => {
 		const answerButtonOnClickHandler = (button: HTMLDivElement) => {
 			const parent = button.parentElement as HTMLDivElement
 			const children = parent.children as HTMLCollectionOf<HTMLDivElement>
@@ -145,7 +145,15 @@
 			button.classList.add('selected')
 		}
 
-		const submitButtonOnClickHandler = () => {
+		const answerButtons = document.querySelectorAll<HTMLDivElement>('.answer')
+
+		for (const answerButton of answerButtons) {
+			answerButton.addEventListener('click', () => answerButtonOnClickHandler(answerButton))
+		}
+
+		const nextButton = document.querySelector<HTMLButtonElement>('#next')
+
+		nextButton.addEventListener('click', () => {
 			if (!allQuestionsAnswered()) {
 				new Popup({
 					title: 'Not all questions were filled in',
@@ -155,77 +163,103 @@
 				return
 			}
 
-			const maxScore = +numOfQuestionsSlider.value / 8 * 3
+			addCurrentSetToResults(results)
+			nextCallback()
+		})
+	}
 
-			const computeScorePercentage = (score: number) => {
-				return score / maxScore * 50 + 50
+	interface GeneratedQuestionSet {
+		questionSet: Question[]
+		lastSet: boolean
+		progress: number
+	}
+
+	const createQuestionSetGenerator = function * (questions: Question[], questionsPerSet: number) {
+		for (let i = 0; i < questions.length; i += questionsPerSet) {
+			yield {
+				questionSet: questions.slice(i, i + questionsPerSet),
+				lastSet: i + questionsPerSet >= questions.length,
+				progress: i / questions.length
 			}
+		}
+	}
 
-			const resultObj = computeResult()
-			const typesResult = matchTypes(resultObj)
+	const showResults = (questionnaire: HTMLDivElement, results: CognitiveFunctionsResult) => {
+		const maxScore = +numOfQuestionsSlider.value / 8 * 3
 
-			const resultsPlaceholderEl = document.querySelector<HTMLDivElement>('#results-placeholder')
-			const resultArr = cognitiveFunctions.map(cognitiveFunction => ({
-				cognitiveFunction,
-				score: resultObj[cognitiveFunction]
-			}))
+		const computeScorePercentage = (score: number) => {
+			return score / maxScore * 50 + 50
+		}
 
-			resultArr.sort((a, b) => b.score - a.score)
+		const typesResult = matchTypes(results)
 
-			resultsPlaceholderEl.innerHTML = /* html */ `
-			<div id="results">
-				<h1>Results</h1>
-				<p>These are your cognitive functions ordered by usage:</p>
+		const resultArr = cognitiveFunctions.map(cognitiveFunction => ({
+			cognitiveFunction,
+			score: results[cognitiveFunction]
+		}))
+
+		resultArr.sort((a, b) => b.score - a.score)
+
+		questionnaire.innerHTML = /* html */ `
+		<div id="results">
+			<h1>Results</h1>
+			<p>These are your cognitive functions ordered by usage:</p>
+			${
+				resultArr.map(result => /* html */ `
+				<div class="result-line">
+					<div class="cognitive-function">${ result.cognitiveFunction }</div>
+					<div class="progress-bar">
+						<div class="progress" style="max-width: ${ computeScorePercentage(result.score) }%"></div>
+					</div>
+					<span class="score">${ result.score }</span>
+				</div>
+				`).join('')
+			}
+			<p>This is your MBTI type:</p>
+			<div class="types-list">
 				${
-					resultArr.map(result => /* html */ `
+					typesResult.map(typeResult => /* html */ `
 					<div class="result-line">
-						<div class="cognitive-function">${ result.cognitiveFunction }</div>
-						<div class="progress-bar">
-							<div class="progress" style="width: ${ computeScorePercentage(result.score) }%"></div>
-						</div>
-						<span class="score">${ result.score }</span>
+						<div class="mbti-type">${ typeResult.type }</div>
+						<span class="difference">Difference: ${ typeResult.diff.toFixed(3) }</span>
 					</div>
 					`).join('')
 				}
-				<p>This is your MBTI type:</p>
-				<div class="types-list">
-					${
-						typesResult.map(typeResult => /* html */ `
-						<div class="result-line">
-							<div class="mbti-type">${ typeResult.type }</div>
-							<span class="difference">Difference: ${ typeResult.diff.toFixed(3) }</span>
-						</div>
-						`).join('')
-					}
-					<a class="expand button">See all</a>
-				</div>
+				<a class="expand button">See all</a>
 			</div>
-			`
+		</div>
+		`
 
-			const typesList = resultsPlaceholderEl.querySelector('.types-list')
-			const expandButton = typesList.querySelector('.expand.button')
+		const typesList = questionnaire.querySelector('.types-list')
+		const expandButton = typesList.querySelector('.expand.button')
 
-			expandButton.addEventListener('click', () => {
-				typesList.classList.add('opened')
-				expandButton.remove()
-			})
-
-			location.hash = ''
-			location.hash = 'results'
-		}
-
-		const answerButtons = document.querySelectorAll<HTMLDivElement>('.answer')
-
-		for (const answerButton of answerButtons) {
-			answerButton.addEventListener('click', () => answerButtonOnClickHandler(answerButton))
-		}
-
-		const submitButton = document.querySelector<HTMLButtonElement>('#submit-questionnaire')
-		submitButton.addEventListener('click', () => submitButtonOnClickHandler())
+		expandButton.addEventListener('click', () => {
+			typesList.classList.add('opened')
+			expandButton.remove()
+		})
 	}
 
-	const renderQuestions = (numOfQuestions: number) => {
-		const questionnaire = document.querySelector('#questionnaire')
+	const renderQuestions = (
+		questionnaire: HTMLDivElement,
+		questions: Question[],
+		results: CognitiveFunctionsResult,
+		lastSet: boolean
+	) => new Promise<void>(resolve => {
+		// Render questionnaire
+
+		questionnaire.innerHTML =
+		questions.map(createQuestion).join('')
+		+ (lastSet ? /* html */ `
+		<button id="next" class="big button">Submit</button>
+		` : /* html */ `
+		<button id="next" class="big button">Next</button>
+		`)
+
+		registerOnClickEvents(results, resolve)
+	})
+
+	const startQuestionnaire = async (numOfQuestions: number) => {
+		const questionnaire = document.querySelector<HTMLDivElement>('#questionnaire')
 
 		// Prepare questions
 
@@ -244,26 +278,71 @@
 		// Shuffle questions
 
 		displayedQuestions.sort(() => 2 * Math.round(Math.random()) - 1)
+		console.log('questions:', displayedQuestions)
 
-		// Render questionnaire
+		// Keep track of results
 
-		questionnaire.innerHTML = /* html */ `
-		${ displayedQuestions.map(question => createQuestion(question)).join('') }
-		<button id="submit-questionnaire" class="big button">Submit</button>
-		`
+		const results = new CognitiveFunctionsResult()
 
-		registerOnClickEvents()
+		// Add question progress bar
+
+		document.body.insertAdjacentHTML('beforeend', /* html */ `
+		<div id="question-progress" class="progress-bar">
+			<div class="progress"></div>
+		</div>
+		`)
+
+		const questionProgress = document.querySelector<HTMLDivElement>('#question-progress .progress')
+
+		// Generate questions
+
+		const questionSetGenerator = createQuestionSetGenerator(displayedQuestions, 8)
+
+		while (true) {
+			const { questionSet, lastSet, progress } = questionSetGenerator.next().value as GeneratedQuestionSet
+
+			// Update progress bar
+
+			questionProgress.style.maxWidth = `${ progress * 100 }%`
+
+			// Render questions and wait until they have been submitted
+
+			await renderQuestions(questionnaire, questionSet, results, lastSet)
+
+			// Scroll up
+
+			location.hash = ''
+			location.hash = 'questionnaire'
+
+			if (lastSet) break
+		}
+
+		// Show results
+
+		showResults(questionnaire, results)
+
+		// Update progress bar
+
+		questionProgress.style.maxWidth = `100%`
+
+		setTimeout(() => {
+			questionProgress.parentElement.classList.add('invisible')
+
+			setTimeout(() => {
+				questionProgress.parentElement.remove()
+			}, 300)
+		}, 500)
 	}
 
-	// Rerender questions whenever the selected number of questions changes
+	// Restart questionnaire whenever the selected number of questions changes
 
 	const numOfQuestionsSlider = document.querySelector<HTMLInputElement>('#num-of-questions')
 
 	numOfQuestionsSlider.addEventListener('change',
-		() => renderQuestions(+numOfQuestionsSlider.value)
+		() => startQuestionnaire(+numOfQuestionsSlider.value)
 	)
 
-	// Render questions
+	// Start questionnaire
 
-	renderQuestions(+numOfQuestionsSlider.value)
+	startQuestionnaire(+numOfQuestionsSlider.value)
 })()

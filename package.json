@@ -16,6 +16,6 @@
 	"author": "Iannis de Zwart",
 	"license": "ISC",
 	"dependencies": {
-		"page-compiler": "^0.0.7"
+		"page-compiler": "^0.0.8"
 	}
 }

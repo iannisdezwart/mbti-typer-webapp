@@ -154,8 +154,11 @@ a:hover, a:focus {
 
 .progress-bar .progress {
 	height: 100%;
+	width: 100%;
+	max-width: 0;
 	border-radius: 0.4rem;
 	background-color: var(--accent-even-lighter);
+	transition: max-width 300ms ease;
 }
 
 .invisible.popup {
@@ -259,9 +262,28 @@ body {
 	width: 100%;
 }
 
+#question-progress {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	border-radius: 0;
+	height: 1rem;
+	width: 100%;
+	transition: opacity 300ms ease, visibility 300ms ease;
+}
+
+#question-progress.invisible {
+	opacity: 0;
+	visibility: none;
+}
+
+#question-progress .progress {
+	border-radius: 0;
+}
+
 #questionnaire {
 	width: min(50rem, 100%);
-	margin-top: 2rem;
+	margin: 2rem 0;
 	padding: 3rem;
 	box-sizing: border-box;
 	border-radius: 3rem;
@@ -359,21 +381,16 @@ body {
 	background-color: var(--accent-light);
 }
 
-#results-placeholder {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-}
-
 #results {
-	width: min(50rem, 100%);
-	margin-top: 2rem;
-	padding: 3rem;
+	width: 100%;
 	box-sizing: border-box;
 	border-radius: 3rem;
 	background-color: var(--accent);
 	text-align: center;
+}
+
+#results h1 {
+	margin-top: 0;
 }
 
 #results .result-line {
