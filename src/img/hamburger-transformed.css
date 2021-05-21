@@ -1,0 +1,15 @@
+svg#hamburger rect {
+	transition: transform 300ms ease;
+}
+
+html.mobile-navbar-opened svg#hamburger rect#hamburger-top {
+	transform: rotate(-45deg) scaleX(0.3) translate(300px, 280px);
+}
+
+html.mobile-navbar-opened svg#hamburger rect#hamburger-middle {
+	transform: rotate(45deg) translate(125px, -300px);
+}
+
+html.mobile-navbar-opened svg#hamburger rect#hamburger-bottom {
+	transform: rotate(-45deg) scaleX(0.3) translate(-900px, -32px);
+}

@@ -1,0 +1,5 @@
+<svg id="hamburger" width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect id="hamburger-top" x="44" y="114" width="512" height="60" fill="#DBDDE4"/>
+<rect id="hamburger-middle" x="44" y="270" width="512" height="60" fill="#DBDDE4"/>
+<rect id="hamburger-bottom" x="44" y="426" width="512" height="60" fill="#DBDDE4"/>
+</svg>

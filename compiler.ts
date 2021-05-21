@@ -1,6 +1,36 @@
 import * as pageCompiler from 'page-compiler'
+import { inlineCSS, inlineSVG } from 'page-compiler'
 
 const main = async () => {
+	const renderNavbar = () => /* html */ `
+	<nav id="navbar">
+		<div class="left">
+			<div class="navbar-item">
+				<a href="/" id="logo-link">
+					${ inlineSVG('src/pwa/logo.svg') }
+					<span class="logo-link-text">MBTI Typer</span>
+				</a>
+			</div>
+		</div>
+		<div class="middle">
+			<div class="navbar-item">
+				<a href="/test.html">Test</a>
+			</div>
+			<div class="navbar-item">
+				<a href="/learn.html">Learn</a>
+			</div>
+		</div>
+		<div class="right">
+			<div class="navbar-item">
+				<div id="hamburger-container" onclick="toggleNavbar()">
+					${ inlineSVG('src/img/hamburger.svg') }
+					${ inlineCSS('src/img/hamburger-transformed.css') }
+				</div>
+			</div>
+		</div>
+	</nav>
+	`
+
 	const pageShell = new pageCompiler.PageShell({
 		head: /* html */ `
 		${ await pageCompiler.importGoogleFont('Ubuntu', [
@@ -47,6 +77,7 @@ const main = async () => {
 	pageCompiler.compilePages([
 		{
 			html: pageShell.render('MBTI Typer', /* html */ `
+			${ renderNavbar() }
 			<div id="page">
 				<div id="landing">
 					<h1>MBTI Typer</h1>
@@ -55,27 +86,40 @@ const main = async () => {
 
 				<div class="horizontal-list">
 					<div class="item">
-						<h2>Take the test</h2>
-						<p>Find your personality type!</p>
-						<a class="button" href="/test.html">Test</a>
+						<div class="vertical-space-between">
+							<div>
+								<h2>Take the personality test</h2>
+								<p>Find your personality type!</p>
+							</div>
+							<div>
+								<a class="big button" href="/test.html">Test</a>
+							</div>
+						</div>
 					</div>
 					<div class="item">
-						<h2>Learn about the types</h2>
-						<p>Discover everything about the personality types!</p>
-						<a class="button" href="#">Learn</a>
+						<div class="vertical-space-between">
+							<div>
+								<h2>Learn about the types</h2>
+								<p>Discover everything about the personality types!</p>
+							</div>
+							<div>
+								<a class="big button" href="#">Learn</a>
+							</div>
+						</div>
 					</div>
 				</div>
 
-				<a href="/dev-tools.html" class="button" style="margin-top: 2rem">Dev tools</a>
+				<a href="/dev-tools.html" class="big button" style="margin-top: 2rem">Dev tools</a>
 			</div>
 			`, seo),
 			path: '/index.html'
 		},
 		{
 			html: pageShell.render('Type me | MBTI Typer', /* html */ `
+			${ renderNavbar() }
 			<div id="page">
 				<div id="landing">
-					<h1><a href="/">MBTI Typer</a> > Type me</h1>
+					<h1>Type me</h1>
 					<p>Find your MBTI personality type</p>
 				</div>
 
@@ -102,17 +146,19 @@ const main = async () => {
 		{
 			html: pageShell.render('Development tools | MBTI Typer', /* html */ `
 			<div id="page">
-				<h1><a href="/">MBTI Typer</a> > Development Tools</h1>
-				<a class="button" onclick="clearCache()">Clear Cache</a>
+				${ renderNavbar() }
+				<h1>Development Tools</h1>
+				<a class="big button" onclick="clearCache()">Clear Cache</a>
 			</div>
 			`, seo),
 			path: '/dev-tools.html'
 		},
 		{
 			html: pageShell.render('Offline | MBTI Typer', /* html */ `
+			${ renderNavbar() }
 			<div id="page">
 				<div id="landing">
-					<h1><a href="/">MBTI Typer</a> > Offline</h1>
+					<h1>Offline</h1>
 					<p>You are currently offline and can't see this page.</p>
 				</div>
 			`, seo),

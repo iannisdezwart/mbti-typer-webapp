@@ -1,3 +1,9 @@
+// Navbar
+
+const toggleNavbar = () => {
+	document.querySelector('html').classList.toggle('mobile-navbar-opened')
+}
+
 // Service worker messaging
 
 interface WorkerMessage {

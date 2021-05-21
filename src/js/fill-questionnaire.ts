@@ -278,7 +278,6 @@
 		// Shuffle questions
 
 		displayedQuestions.sort(() => 2 * Math.round(Math.random()) - 1)
-		console.log('questions:', displayedQuestions)
 
 		// Keep track of results
 
