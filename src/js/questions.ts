@@ -37,7 +37,7 @@ const questions: Questions = {
 		`I remember past events in vivid detail.`,
 		`I quickly notice when something was rearranged.`,
 		`I like to do things in systematic order.`,
-		`I prefer conversations that have an practical purpose. Philosofical conversations are boring.`,
+		`I prefer conversations that have an practical purpose. Philosophical conversations are boring.`,
 		`I like noticing details in events and relationships.`,
 		`When I talk about a past experience, I recite the most important facts in what sometimes seems like a random order.`,
 		`I possess a very detailed internal map of past memories.`,
