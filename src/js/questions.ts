@@ -66,7 +66,7 @@ const questions: Questions = {
 		`I struggle explaining intuitions from my inner world to the outer world.`,
 		`I trust my gut instincts.`,
 		`I often intuitively know and understand something, without being able to put it in words.`,
-		`I use my inner undestanding of how things and concepts fit together to help me understand how things work.`,
+		`I use my inner understanding of how things and concepts fit together to help me understand how things work.`,
 	],
 
 	Te: [
