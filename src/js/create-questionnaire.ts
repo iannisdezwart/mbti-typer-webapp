@@ -1,4 +1,31 @@
-(() => {
+interface Questions {
+	Fe: string[]
+	Fi: string[]
+	Te: string[]
+	Ti: string[]
+	Se: string[]
+	Si: string[]
+	Ne: string[]
+	Ni: string[]
+}
+
+interface QuestionnaireParams {
+	cognitiveFunctionsDescription: string
+	typeDescription: string
+	questions: Questions
+	questionsPerCognitiveFunction: number
+	minDisplayedQuestionsPerCognitiveFunction: number
+	defaultDisplayedQuestionsPerCognitiveFunction: number
+	fullyAgreeText: string
+	agreeText: string
+	slightlyAgreeText: string
+	neutralText: string
+	slightlyDisagreeText: string
+	disagreeText: string
+	fullyDisagreeText: string
+}
+
+const createQuestionnaire = (params: QuestionnaireParams) => {
 	type CognitiveFunction = 'Fe' | 'Fi' | 'Te' | 'Ti' | 'Se' | 'Si' | 'Ne' | 'Ni'
 	const cognitiveFunctions: CognitiveFunction[] = [
 		'Fe', 'Fi', 'Te', 'Ti', 'Se', 'Si', 'Ne', 'Ni'
@@ -45,21 +72,29 @@
 		Ni = 0
 	}
 
+	const {
+		questions, cognitiveFunctionsDescription, typeDescription,
+		questionsPerCognitiveFunction, minDisplayedQuestionsPerCognitiveFunction,
+		defaultDisplayedQuestionsPerCognitiveFunction,
+		fullyAgreeText, agreeText, slightlyAgreeText, neutralText,
+		slightlyDisagreeText, disagreeText, fullyDisagreeText
+	} = params
+
 	const createQuestion = (question: Question) => /* html */ `
 	<div class="question" data-cognitive-function="${ question.cognitiveFunction }" data-index="${ question.index }">
 		<h3 class="statement">${ question.statement }</h3>
 		<div class="answers">
-			<div class="answer just-like-me" title="Just like me"></div>
-			<div class="answer like-me" title="Like me"></div>
-			<div class="answer slightly-like-me" title="Slightly like me"></div>
-			<div class="answer neutral" title="Neutral"></div>
-			<div class="answer not-really-me" title="Not really me"></div>
-			<div class="answer not-me" title="Not me"></div>
-			<div class="answer not-me-at-all" title="Not me at all"></div>
+			<div class="answer agree-3" title="${ fullyAgreeText }"></div>
+			<div class="answer agree-2" title="${ agreeText }"></div>
+			<div class="answer agree-1" title="${ slightlyAgreeText }"></div>
+			<div class="answer neutral" title="${ neutralText }"></div>
+			<div class="answer disagree-1" title="${ slightlyDisagreeText }"></div>
+			<div class="answer disagree-2" title="${ disagreeText }"></div>
+			<div class="answer disagree-3" title="${ fullyDisagreeText }"></div>
 		</div>
 		<div class="answers-keys">
-			<span>Just like me</span>
-			<span>Not me at all</span>
+			<span>${ fullyAgreeText }</span>
+			<span>${ fullyDisagreeText }</span>
 		</div>
 	</div>
 	<div class="seperator"></div>
@@ -203,7 +238,7 @@
 		questionnaire.innerHTML = /* html */ `
 		<div id="results">
 			<h1>Results</h1>
-			<p>These are your cognitive functions ordered by usage:</p>
+			<p>${ cognitiveFunctionsDescription }</p>
 			${
 				resultArr.map(result => /* html */ `
 				<div class="result-line">
@@ -215,7 +250,7 @@
 				</div>
 				`).join('')
 			}
-			<p>This is your MBTI type:</p>
+			<p>${ typeDescription }</p>
 			<div class="types-list">
 				${
 					typesResult.map(typeResult => /* html */ `
@@ -266,10 +301,10 @@
 		const displayedQuestions: Question[] = []
 
 		for (const cognitiveFunction of cognitiveFunctions) {
-			const questionList = questions[cognitiveFunction] as QuestionList
+			const questionList = questions[cognitiveFunction] as string[]
 			questionList.sort(() => 2 * Math.round(Math.random()) - 1)
 
-			for (let i = 0; i < numOfQuestions / 8 && i < questionList.length; i++) {
+			for (let i = 0; i < numOfQuestions / 8 && i < questionsPerCognitiveFunction; i++) {
 				const statement = questionList[i]
 				displayedQuestions.push({ statement, cognitiveFunction: cognitiveFunction, index: i })
 			}
@@ -333,6 +368,29 @@
 		}, 500)
 	}
 
+	// Create questionnaire HTML structure
+
+	const minQ = 8 * minDisplayedQuestionsPerCognitiveFunction
+	const maxQ = 8 * questionsPerCognitiveFunction
+	const defaultQ = 8 * defaultDisplayedQuestionsPerCognitiveFunction
+
+	document.querySelector<HTMLDivElement>('#questionnaire-placeholder').innerHTML = /* html */ `
+	<div class="horizontal-list" id="questionnaire-settings">
+		<div class="item">
+			<label for="num-of-questions">Number of questions</label>
+			<div class="slider">
+				<input type="range" min="${ minQ }" max="${ maxQ }" value="${ defaultQ }"
+					step="8" name="num-of-questions" id="num-of-questions">
+				<span class="value"></span>
+			</div>
+		</div>
+	</div>
+
+	<div id="questionnaire"></div>
+
+	<div id="results-placeholder"></div>
+	`
+
 	// Restart questionnaire whenever the selected number of questions changes
 
 	const numOfQuestionsSlider = document.querySelector<HTMLInputElement>('#num-of-questions')
@@ -344,4 +402,4 @@
 	// Start questionnaire
 
 	startQuestionnaire(+numOfQuestionsSlider.value)
-})()
+}

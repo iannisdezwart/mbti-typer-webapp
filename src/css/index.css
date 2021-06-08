@@ -390,6 +390,13 @@ body {
 	justify-content: space-between;
 }
 
+#questionnaire-placeholder {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
 #questionnaire-settings {
 	display: flex;
 	justify-content: center;
@@ -457,20 +464,20 @@ body {
 	background-color: var(--accent-quite-light);
 }
 
-#questionnaire .just-like-me,
-#questionnaire .not-me-at-all {
+#questionnaire .agree-3,
+#questionnaire .disagree-3 {
 	width: var(--questionnaire-answer-button-size);
 	height: var(--questionnaire-answer-button-size);
 }
 
-#questionnaire .like-me,
-#questionnaire .not-me {
+#questionnaire .agree-2,
+#questionnaire .disagree-2 {
 	width: calc(var(--questionnaire-answer-button-size) * 0.8);
 	height: calc(var(--questionnaire-answer-button-size) * 0.8);
 }
 
-#questionnaire .slightly-like-me,
-#questionnaire .not-really-me {
+#questionnaire .agree-1,
+#questionnaire .disagree-1 {
 	width: calc(var(--questionnaire-answer-button-size) * 0.6);
 	height: calc(var(--questionnaire-answer-button-size) * 0.6);
 }

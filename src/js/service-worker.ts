@@ -3,9 +3,10 @@ const staticCache = `static-cache-v${ cacheVersion }`
 const dynamicCache = `dynamic-cache-v${ cacheVersion }`
 
 const assets = [
-	'/', '/index.html',
-	'/test.html',
-	'/offline.html',
+	'/',
+	'/type-me/',
+	'/perfect-match/',
+	'/offline/',
 	'https://fonts.gstatic.com/s/ubuntu/v15/4iCv6KVjbNBYlgoCxCvTtw.ttf',
 	'https://fonts.gstatic.com/s/ubuntu/v15/4iCs6KVjbNBYlgo6eA.ttf',
 ]
@@ -106,7 +107,7 @@ self.addEventListener('fetch', (e: FetchEvent) => {
 			// We're offline and the page is not in our caches, send the fallback page
 
 			if (e.request.mode == 'navigate') {
-				const fallbackResponse = await caches.match('/offline.html')
+				const fallbackResponse = await caches.match('/offline/')
 				return fallbackResponse
 			}
 
